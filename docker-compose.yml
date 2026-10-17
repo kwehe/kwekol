@@ -1,0 +1,32 @@
+services:
+  kwekol:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - APP_DIR=/app
+      - DATA_DIR=/data
+      - HOST=0.0.0.0
+      - PORT=3000
+    volumes:
+      - kwekol-data:/data
+    expose:
+      - "3000"
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - kwekol
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+volumes:
+  kwekol-data:
+  caddy-data:
+  caddy-config:
